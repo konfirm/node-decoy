@@ -16,5 +16,8 @@
   "devDependencies": {
     "@konfirm/labrat": "^1.1.0",
     "eslint-config-strict": "^14.0.1"
+  },
+  "dependencies": {
+    "@konfirm/trap": "^1.0.0"
   }
 }

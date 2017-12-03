@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const Trap = require('./trap');
+const Trap = require('@konfirm/trap');
 
 const storage = new WeakMap();
 
