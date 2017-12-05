@@ -67,6 +67,11 @@ describe('Dummy', () => {
 		expect(two.qqq).to.equal(one.qqq);
 		expect(Dummy.checksum(one)).to.equal(Dummy.checksum(two));
 
+		one.aaa = { a: 'A', q: { c: 'C', a: 'A' }, z: 'Z' };
+		two.aaa = { z: 'Z', a: 'A', q: { a: 'A', c: 'C' } };
+
+		expect(Dummy.checksum(one)).to.equal(Dummy.checksum(two));
+
 		next();
 	});
 

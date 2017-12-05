@@ -36,9 +36,10 @@ class Dummy {
 		return Object.keys(proxy)
 			.sort((one, two) => -Number(one < two) || Number(one > two))
 			.reduce((checksum, key) => {
-				// console.log(`${ key }:${ proxy[key] }`);
+				const value = proxy[key];
+				const update = typeof value === 'object' ? this.checksum(value) : value;
 
-				return checksum.update(`${ key }:${ proxy[key] }`);
+				return checksum.update(`${ key }:${ update }`);
 			}, crypto.createHash('sha256'))
 			.digest('hex');
 	}
