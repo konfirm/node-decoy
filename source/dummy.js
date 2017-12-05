@@ -27,6 +27,15 @@ class Dummy {
 		return proxy;
 	}
 
+	/**
+	 *  Calculate the checksum for the given proxy, taking nested objects
+	 *  into consideration
+	 *
+	 *  @static
+	 *  @param     {Object}  proxy
+	 *  @return    {String}  checksum
+	 *  @memberof  Dummy
+	 */
 	static checksum(proxy) {
 		return Object.keys(proxy)
 			.sort((one, two) => -Number(one < two) || Number(one > two))
@@ -39,21 +48,47 @@ class Dummy {
 			.digest('hex');
 	}
 
+	/**
+	 *  Test whether the provided object is a known Dummy
+	 *
+	 *  @static
+	 *  @param     {Object}   proxy
+	 *  @return    {Boolean}  is dummy
+	 *  @memberof  Dummy
+	 */
 	static isDummy(proxy) {
 		return storage.has(proxy);
 	}
 
+	/**
+	 *  Remove the provided object from the internal storage
+	 *
+	 *  @static
+	 *  @param     {Object}  proxy
+	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
+	 *  @memberof  Dummy
+	 */
 	static purge(proxy) {
 		if (!this.isDummy(proxy)) {
-			throw new Error(`Unknown Dummy: ${ proxy }`);
+			throw new Error(`Not a known Dummy: ${ proxy }`);
 		}
 
 		storage.delete(proxy);
 	}
 
+	/**
+	 *  Commit all recorded mutations to the proxied object and
+	 *  any recorded delegate
+	 *
+	 *  @static
+	 *  @param     {Object}  proxy
+	 *  @return    {Object}  original target
+	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
+	 *  @memberof  Dummy
+	 */
 	static commit(proxy) {
 		if (!this.isDummy(proxy)) {
-			throw new Error(`Unknown Dummy: ${ proxy }`);
+			throw new Error(`Not a known Dummy: ${ proxy }`);
 		}
 
 		const { target, trap, linked } = storage.get(proxy);
@@ -64,9 +99,19 @@ class Dummy {
 		return target;
 	}
 
+	/**
+	 *  Roll back all recorded mutations for the proxied object and
+	 *  any recorded delegate
+	 *
+	 *  @static
+	 *  @param     {Object}  proxy
+	 *  @return    {Object}  original target
+	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
+	 *  @memberof  Dummy
+	 */
 	static rollback(proxy) {
 		if (!this.isDummy(proxy)) {
-			throw new Error(`Unknown Dummy: ${ proxy }`);
+			throw new Error(`Not a known Dummy: ${ proxy }`);
 		}
 
 		const { target, trap, linked } = storage.get(proxy);
