@@ -19,12 +19,7 @@ class Dummy {
 	 */
 	static create(target) {
 		const linked = [];
-		const trap = new DummyTrap((object) => {
-			const delegate = this.create(object);
-			linked.push(delegate);
-
-			return delegate;
-		});
+		const trap = new DummyTrap((object) => linked[linked.push(this.create(object)) - 1]);
 		const proxy = new Proxy(target, trap);
 
 		storage.set(proxy, { target, trap, linked });
