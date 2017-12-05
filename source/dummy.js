@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const Trap = require('@konfirm/trap');
+const DummyTrap = require('./trap');
 
 const storage = new WeakMap();
 
@@ -18,22 +18,28 @@ class Dummy {
 	 *  @memberof  Dummy
 	 */
 	static create(target) {
-		const trap = new Trap();
+		const linked = [];
+		const trap = new DummyTrap((object) => {
+			const delegate = this.create(object);
+			linked.push(delegate);
+
+			return delegate;
+		});
 		const proxy = new Proxy(target, trap);
 
-		storage.set(proxy, { target, trap });
+		storage.set(proxy, { target, trap, linked });
 
 		return proxy;
 	}
 
 	static checksum(proxy) {
 		return Object.keys(proxy)
-			//  eslint-disable-next-line no-confusing-arrow, no-magic-numbers
-			.sort((one, two) => one < two ? -1 : Number(one > two))
-			.reduce(
-				(checksum, key) => checksum.update(`${ key }:${ proxy[key] }`),
-				crypto.createHash('sha256')
-			)
+			.sort((one, two) => -Number(one < two) || Number(one > two))
+			.reduce((checksum, key) => {
+				// console.log(`${ key }:${ proxy[key] }`);
+
+				return checksum.update(`${ key }:${ proxy[key] }`);
+			}, crypto.createHash('sha256'))
 			.digest('hex');
 	}
 
@@ -54,9 +60,10 @@ class Dummy {
 			throw new Error(`Unknown Dummy: ${ proxy }`);
 		}
 
-		const { target, trap } = storage.get(proxy);
+		const { target, trap, linked } = storage.get(proxy);
 
 		trap.commit();
+		linked.forEach((sub) => this.commit(sub));
 
 		return target;
 	}
@@ -66,9 +73,10 @@ class Dummy {
 			throw new Error(`Unknown Dummy: ${ proxy }`);
 		}
 
-		const { target, trap } = storage.get(proxy);
+		const { target, trap, linked } = storage.get(proxy);
 
 		trap.rollback();
+		linked.forEach((sub) => this.rollback(sub));
 
 		return target;
 	}

@@ -18,6 +18,6 @@
     "eslint-config-strict": "^14.0.1"
   },
   "dependencies": {
-    "@konfirm/trap": "^1.0.0"
+    "@konfirm/trap": "^1.1.1"
   }
 }

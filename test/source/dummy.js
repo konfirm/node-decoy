@@ -110,6 +110,103 @@ describe('Dummy', () => {
 		next();
 	});
 
+	describe('Nested objects', () => {
+		it('can commit', (next) => {
+			const subject = {};
+			const dummy = Dummy.create(subject);
+
+			dummy.foo = { bar: { baz: { qux: 'yes' } } };
+			expect(Dummy.isDummy(dummy.foo.bar.baz)).to.be.true();
+			expect(Dummy.isDummy(dummy.foo.bar)).to.be.true();
+			expect(Dummy.isDummy(dummy.foo)).to.be.true();
+
+			expect(subject).to.equal({});
+
+			Dummy.commit(dummy);
+
+			expect(subject).to.equal({ foo: { bar: { baz: { qux: 'yes' } } } });
+
+			Dummy.rollback(dummy);
+
+			expect(subject).to.equal({ foo: { bar: { baz: { qux: 'yes' } } } });
+
+			next();
+		});
+
+		it('can roll back', (next) => {
+			const subject = {};
+			const dummy = Dummy.create(subject);
+
+			dummy.foo = { bar: { baz: { qux: 'yes' } } };
+			expect(Dummy.isDummy(dummy.foo.bar.baz)).to.be.true();
+			expect(Dummy.isDummy(dummy.foo.bar)).to.be.true();
+			expect(Dummy.isDummy(dummy.foo)).to.be.true();
+
+			expect(subject).to.equal({});
+
+			Dummy.rollback(dummy);
+
+			expect(subject).to.equal({});
+
+			Dummy.commit(dummy);
+
+			expect(subject).to.equal({});
+
+			next();
+		});
+	});
+
+	describe('Arrays', () => {
+		const subject = { arr: [] };
+		const dummy = Dummy.create(subject);
+
+		it('does not modify the source', (next) => {
+			dummy.arr.push('hello', 'world');
+
+			expect(dummy.arr).to.be.length(2);
+			expect(dummy.arr).to.equal([ 'hello', 'world' ]);
+			expect(subject.arr).to.be.length(0);
+			expect(subject.arr).to.equal([]);
+
+			Dummy.commit(dummy);
+
+			expect(dummy.arr).to.be.length(2);
+			expect(dummy.arr).to.equal([ 'hello', 'world' ]);
+			expect(subject.arr).to.be.length(2);
+			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+
+			dummy.arr.push('yoda', dummy.arr.shift());
+
+			expect(dummy.arr).to.be.length(3);
+			expect(dummy.arr).to.equal([ 'world', 'yoda', 'hello' ]);
+			expect(subject.arr).to.be.length(2);
+			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+
+			Dummy.rollback(dummy);
+
+			expect(dummy.arr).to.be.length(2);
+			expect(dummy.arr).to.equal([ 'hello', 'world' ]);
+			expect(subject.arr).to.be.length(2);
+			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+
+			dummy.arr.splice(1, 0, 'wonderful');
+
+			expect(dummy.arr).to.be.length(3);
+			expect(dummy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+			expect(subject.arr).to.be.length(2);
+			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+
+			Dummy.commit(dummy);
+
+			expect(dummy.arr).to.be.length(3);
+			expect(dummy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+			expect(subject.arr).to.be.length(3);
+			expect(subject.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+
+			next();
+		});
+	});
+
 	it('throws if the proxy is not a known dummy', (next) => {
 		const subject = { aaa: 'aaa' };
 		const dummy = Dummy.create(subject);
