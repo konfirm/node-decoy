@@ -4,15 +4,15 @@ const storage = new WeakMap();
 /**
  *  Trap extension to allow for manipulation of get values
  *
- *  @class    DummyTrap
+ *  @class    DecoyTrap
  *  @extends  {Trap}
  */
-class DummyTrap extends Trap {
+class DecoyTrap extends Trap {
 	/**
-	 *  Creates an instance of DummyTrap
+	 *  Creates an instance of DecoyTrap
 	 *
 	 *  @param     {Function}  delegate
-	 *  @memberof  DummyTrap
+	 *  @memberof  DecoyTrap
 	 */
 	constructor(delegate) {
 		super();
@@ -26,7 +26,7 @@ class DummyTrap extends Trap {
 	 *
 	 * @param     {any}    value
 	 * @return    {Proxy}  delegate
-	 * @memberof  DummyTrap
+	 * @memberof  DecoyTrap
 	 */
 	delegate(value) {
 		const result = storage.get(this).delegate(value);
@@ -43,7 +43,7 @@ class DummyTrap extends Trap {
 	 *  @param     {Object}  target
 	 *  @param     {any}     value
 	 *  @return    {Proxy}   delegate
-	 *  @memberof  DummyTrap
+	 *  @memberof  DecoyTrap
 	 */
 	cache(target, value) {
 		if (!storage.has(value)) {
@@ -66,7 +66,7 @@ class DummyTrap extends Trap {
 	 *  @param     {Object}  target
 	 *  @param     {String}  key
 	 *  @return    {any}     value
-	 *  @memberof  DummyTrap
+	 *  @memberof  DecoyTrap
 	 */
 	get(target, key) {
 		const value = super.get(target, key);
@@ -75,4 +75,4 @@ class DummyTrap extends Trap {
 	}
 }
 
-module.exports = DummyTrap;
+module.exports = DecoyTrap;

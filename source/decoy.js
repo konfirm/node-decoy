@@ -4,18 +4,18 @@ const DummyTrap = require('./trap');
 const storage = new WeakMap();
 
 /**
- *  Crash Test Dummy
+ *  Decoy
  *
- *  @class  Dummy
+ *  @class  Decoy
  */
-class Dummy {
+class Decoy {
 	/**
-	 *  Create a Dummy target
+	 *  Create a Decoy target
 	 *
 	 *  @static
 	 *  @param     {Object}  target
-	 *  @return    {Proxy}   dummy
-	 *  @memberof  Dummy
+	 *  @return    {Proxy}   decoy
+	 *  @memberof  Decoy
 	 */
 	static create(target) {
 		const linked = [];
@@ -34,7 +34,7 @@ class Dummy {
 	 *  @static
 	 *  @param     {Object}  proxy
 	 *  @return    {String}  checksum
-	 *  @memberof  Dummy
+	 *  @memberof  Decoy
 	 */
 	static checksum(proxy) {
 		return Object.keys(proxy)
@@ -49,14 +49,14 @@ class Dummy {
 	}
 
 	/**
-	 *  Test whether the provided object is a known Dummy
+	 *  Test whether the provided object is a known Decoy
 	 *
 	 *  @static
 	 *  @param     {Object}   proxy
-	 *  @return    {Boolean}  is dummy
-	 *  @memberof  Dummy
+	 *  @return    {Boolean}  is decoy
+	 *  @memberof  Decoy
 	 */
-	static isDummy(proxy) {
+	static isDecoy(proxy) {
 		return storage.has(proxy);
 	}
 
@@ -65,12 +65,12 @@ class Dummy {
 	 *
 	 *  @static
 	 *  @param     {Object}  proxy
-	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
-	 *  @memberof  Dummy
+	 *  @throws    {Error}   'Not a known Decoy: <proxy>'
+	 *  @memberof  Decoy
 	 */
 	static purge(proxy) {
-		if (!this.isDummy(proxy)) {
-			throw new Error(`Not a known Dummy: ${ proxy }`);
+		if (!this.isDecoy(proxy)) {
+			throw new Error(`Not a known Decoy: ${ proxy }`);
 		}
 
 		storage.delete(proxy);
@@ -83,12 +83,12 @@ class Dummy {
 	 *  @static
 	 *  @param     {Object}  proxy
 	 *  @return    {Object}  original target
-	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
-	 *  @memberof  Dummy
+	 *  @throws    {Error}   'Not a known Decoy: <proxy>'
+	 *  @memberof  Decoy
 	 */
 	static commit(proxy) {
-		if (!this.isDummy(proxy)) {
-			throw new Error(`Not a known Dummy: ${ proxy }`);
+		if (!this.isDecoy(proxy)) {
+			throw new Error(`Not a known Decoy: ${ proxy }`);
 		}
 
 		const { target, trap, linked } = storage.get(proxy);
@@ -106,12 +106,12 @@ class Dummy {
 	 *  @static
 	 *  @param     {Object}  proxy
 	 *  @return    {Object}  original target
-	 *  @throws    {Error}   'Not a known Dummy: <proxy>'
-	 *  @memberof  Dummy
+	 *  @throws    {Error}   'Not a known Decoy: <proxy>'
+	 *  @memberof  Decoy
 	 */
 	static rollback(proxy) {
-		if (!this.isDummy(proxy)) {
-			throw new Error(`Not a known Dummy: ${ proxy }`);
+		if (!this.isDecoy(proxy)) {
+			throw new Error(`Not a known Decoy: ${ proxy }`);
 		}
 
 		const { target, trap, linked } = storage.get(proxy);
@@ -123,4 +123,4 @@ class Dummy {
 	}
 }
 
-module.exports = Dummy;
+module.exports = Decoy;
