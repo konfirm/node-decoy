@@ -1,4 +1,8 @@
 # Decoy
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/817a1fe0a0ee4b6aa7308a9de3d2c953)](https://www.codacy.com/app/konfirm/node-decoy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=konfirm/node-decoy&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/konfirm/node-decoy.svg?branch=master)](https://travis-ci.org/konfirm/node-decoy)
+
 Create Proxy objects and keep track of mutations, reflecting them on access and providing the ability to either commit them or roll them back.
 
 ## Installation
