@@ -85,12 +85,15 @@ describe('Decoy', () => {
 		expect(subject.aaa).to.equal('aaa');
 		expect(decoy.aaa).to.equal('ZZZ');
 
-		Decoy.rollback(decoy);
+		Decoy.rollback(decoy)
+			.then((result) => {
+				expect(result).to.shallow.equal(subject);
 
-		expect(subject.aaa).to.equal('aaa');
-		expect(decoy.aaa).to.equal('aaa');
+				expect(subject.aaa).to.equal('aaa');
+				expect(decoy.aaa).to.equal('aaa');
 
-		next();
+				next();
+			});
 	});
 
 	it('commits all mutations', (next) => {
@@ -105,12 +108,15 @@ describe('Decoy', () => {
 		expect(subject.aaa).to.equal('aaa');
 		expect(decoy.aaa).to.equal('ZZZ');
 
-		Decoy.commit(decoy);
+		Decoy.commit(decoy)
+			.then((result) => {
+				expect(result).to.shallow.equal(subject);
 
-		expect(subject.aaa).to.equal('ZZZ');
-		expect(decoy.aaa).to.equal('ZZZ');
+				expect(subject.aaa).to.equal('ZZZ');
+				expect(decoy.aaa).to.equal('ZZZ');
 
-		next();
+				next();
+			});
 	});
 
 	describe('Nested objects', () => {
@@ -125,15 +131,14 @@ describe('Decoy', () => {
 
 			expect(subject).to.equal({});
 
-			Decoy.commit(decoy);
+			Decoy.commit(decoy)
+				.then((result) => {
+					expect(result).to.shallow.equal(subject);
 
-			expect(subject).to.equal({ foo: { bar: { baz: { qux: 'yes' } } } });
+					expect(subject).to.equal({ foo: { bar: { baz: { qux: 'yes' } } } });
 
-			Decoy.rollback(decoy);
-
-			expect(subject).to.equal({ foo: { bar: { baz: { qux: 'yes' } } } });
-
-			next();
+					next();
+				});
 		});
 
 		it('can roll back', (next) => {
@@ -147,15 +152,14 @@ describe('Decoy', () => {
 
 			expect(subject).to.equal({});
 
-			Decoy.rollback(decoy);
+			Decoy.rollback(decoy)
+				.then((result) => {
+					expect(result).to.shallow.equal(subject);
 
-			expect(subject).to.equal({});
+					expect(subject).to.equal({});
 
-			Decoy.commit(decoy);
-
-			expect(subject).to.equal({});
-
-			next();
+					next();
+				});
 		});
 	});
 
@@ -171,62 +175,152 @@ describe('Decoy', () => {
 			expect(subject.arr).to.be.length(0);
 			expect(subject.arr).to.equal([]);
 
-			Decoy.commit(decoy);
+			Decoy.commit(decoy)
+				.then((result) => {
+					expect(result).to.shallow.equal(subject);
 
-			expect(decoy.arr).to.be.length(2);
-			expect(decoy.arr).to.equal([ 'hello', 'world' ]);
-			expect(subject.arr).to.be.length(2);
-			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+					expect(decoy.arr).to.be.length(2);
+					expect(decoy.arr).to.equal([ 'hello', 'world' ]);
+					expect(subject.arr).to.be.length(2);
+					expect(subject.arr).to.equal([ 'hello', 'world' ]);
 
-			decoy.arr.push('yoda', decoy.arr.shift());
+					decoy.arr.push('yoda', decoy.arr.shift());
 
-			expect(decoy.arr).to.be.length(3);
-			expect(decoy.arr).to.equal([ 'world', 'yoda', 'hello' ]);
-			expect(subject.arr).to.be.length(2);
-			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+					expect(decoy.arr).to.be.length(3);
+					expect(decoy.arr).to.equal([ 'world', 'yoda', 'hello' ]);
+					expect(subject.arr).to.be.length(2);
+					expect(subject.arr).to.equal([ 'hello', 'world' ]);
 
-			Decoy.rollback(decoy);
+					return Decoy.rollback(decoy);
+				})
+				.then((result) => {
+					expect(result).to.shallow.equal(subject);
 
-			expect(decoy.arr).to.be.length(2);
-			expect(decoy.arr).to.equal([ 'hello', 'world' ]);
-			expect(subject.arr).to.be.length(2);
-			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+					expect(decoy.arr).to.be.length(2);
+					expect(decoy.arr).to.equal([ 'hello', 'world' ]);
+					expect(subject.arr).to.be.length(2);
+					expect(subject.arr).to.equal([ 'hello', 'world' ]);
 
-			decoy.arr.splice(1, 0, 'wonderful');
+					decoy.arr.splice(1, 0, 'wonderful');
 
-			expect(decoy.arr).to.be.length(3);
-			expect(decoy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
-			expect(subject.arr).to.be.length(2);
-			expect(subject.arr).to.equal([ 'hello', 'world' ]);
+					expect(decoy.arr).to.be.length(3);
+					expect(decoy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+					expect(subject.arr).to.be.length(2);
+					expect(subject.arr).to.equal([ 'hello', 'world' ]);
 
-			Decoy.commit(decoy);
+					return Decoy.commit(decoy);
+				})
+				.then((result) => {
+					expect(result).to.shallow.equal(subject);
 
-			expect(decoy.arr).to.be.length(3);
-			expect(decoy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
-			expect(subject.arr).to.be.length(3);
-			expect(subject.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+					expect(decoy.arr).to.be.length(3);
+					expect(decoy.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
+					expect(subject.arr).to.be.length(3);
+					expect(subject.arr).to.equal([ 'hello', 'wonderful', 'world' ]);
 
-			next();
+					next();
+				});
 		});
 	});
 
-	it('throws if the proxy is not a known decoy', (next) => {
-		const subject = { aaa: 'aaa' };
-		const decoy = Decoy.create(subject);
+	describe('Errors', () => {
+		const original = { foo: { bar: { baz: 'qux' } } };
+		const decoy = Decoy.create(original);
 
-		expect(() => Decoy.commit(subject)).to.throw(Error, /^Not a known Decoy/);
-		expect(() => Decoy.commit(decoy)).not.to.throw();
+		//  ensure there are internal "links" to sub-decoys
+		expect(decoy.foo.bar.baz).to.equal('qux');
 
-		expect(() => Decoy.rollback(subject)).to.throw(Error, /^Not a known Decoy/);
-		expect(() => Decoy.rollback(decoy)).not.to.throw();
+		describe('commit', () => {
+			it('rejects original', (next) => {
+				Decoy.commit(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
 
-		expect(() => Decoy.purge(subject)).to.throw(Error, /^Not a known Decoy/);
-		expect(() => Decoy.purge(decoy)).not.to.throw();
+						next();
+					});
+			});
 
-		expect(() => Decoy.commit(decoy)).to.throw(Error, /^Not a known Decoy/);
-		expect(() => Decoy.rollback(decoy)).to.throw(Error, /^Not a known Decoy/);
-		expect(() => Decoy.purge(decoy)).to.throw(Error, /^Not a known Decoy/);
+			it('accepts decoy', (next) => {
+				Decoy.commit(decoy)
+					.then((result) => {
+						expect(result).to.shallow.equal(original);
 
-		next();
+						next();
+					});
+			});
+		});
+
+		describe('rollback', () => {
+			it('rejects original', (next) => {
+				Decoy.rollback(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
+
+						next();
+					});
+			});
+
+			it('accepts decoy', (next) => {
+				Decoy.rollback(decoy)
+					.then((result) => {
+						expect(result).to.shallow.equal(original);
+
+						next();
+					});
+			});
+		});
+
+		describe('purge', () => {
+			it('rejects original', (next) => {
+				Decoy.purge(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
+
+						next();
+					});
+			});
+
+			it('accepts decoy', (next) => {
+				Decoy.purge(decoy)
+					.then((result) => {
+						expect(result).to.shallow.equal(original);
+
+						next();
+					});
+			});
+
+			it('no longer commits decoy', (next) => {
+				Decoy.commit(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
+
+						next();
+					});
+			});
+
+			it('no longer rolls back decoy', (next) => {
+				Decoy.rollback(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
+
+						next();
+					});
+			});
+
+			it('no longer purges decoy', (next) => {
+				Decoy.rollback(original)
+					.catch((error) => {
+						expect(error).to.be.error();
+						expect(error.message).to.match(/^Not a known Decoy/);
+
+						next();
+					});
+			});
+		});
 	});
 });

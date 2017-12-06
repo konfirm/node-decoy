@@ -69,11 +69,22 @@ class Decoy {
 	 *  @memberof  Decoy
 	 */
 	static purge(proxy) {
-		if (!this.isDecoy(proxy)) {
-			throw new Error(`Not a known Decoy: ${ proxy }`);
-		}
+		return new Promise((resolve, reject) => {
+			if (!this.isDecoy(proxy)) {
+				return reject(new Error(`Not a known Decoy: ${ proxy }`));
+			}
 
-		storage.delete(proxy);
+			const { target, linked } = storage.get(proxy);
+
+			storage.delete(proxy);
+
+			linked.reduce((prev, sub) => prev.then(() => this.purge(sub)), Promise.resolve())
+				.then(() => {
+					linked.length = 0;
+
+					resolve(target);
+				});
+		});
 	}
 
 	/**
@@ -87,16 +98,18 @@ class Decoy {
 	 *  @memberof  Decoy
 	 */
 	static commit(proxy) {
-		if (!this.isDecoy(proxy)) {
-			throw new Error(`Not a known Decoy: ${ proxy }`);
-		}
+		return new Promise((resolve, reject) => {
+			if (!this.isDecoy(proxy)) {
+				return reject(new Error(`Not a known Decoy: ${ proxy }`));
+			}
 
-		const { target, trap, linked } = storage.get(proxy);
+			const { target, trap, linked } = storage.get(proxy);
 
-		trap.commit();
-		linked.forEach((sub) => this.commit(sub));
+			trap.commit();
 
-		return target;
+			linked.reduce((prev, sub) => prev.then(() => this.commit(sub)), Promise.resolve())
+				.then(() => resolve(target));
+		});
 	}
 
 	/**
@@ -110,16 +123,18 @@ class Decoy {
 	 *  @memberof  Decoy
 	 */
 	static rollback(proxy) {
-		if (!this.isDecoy(proxy)) {
-			throw new Error(`Not a known Decoy: ${ proxy }`);
-		}
+		return new Promise((resolve, reject) => {
+			if (!this.isDecoy(proxy)) {
+				return reject(new Error(`Not a known Decoy: ${ proxy }`));
+			}
 
-		const { target, trap, linked } = storage.get(proxy);
+			const { target, trap, linked } = storage.get(proxy);
 
-		trap.rollback();
-		linked.forEach((sub) => this.rollback(sub));
+			trap.rollback();
 
-		return target;
+			linked.reduce((prev, sub) => prev.then(() => this.rollback(sub)), Promise.resolve())
+				.then(() => resolve(target));
+		});
 	}
 }
 
