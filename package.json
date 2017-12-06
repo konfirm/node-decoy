@@ -4,7 +4,7 @@
   "description": "Proxy objects, keeping track of mutations to commit/rollback",
   "main": "source/decoy.js",
   "scripts": {
-    "test": "lab -clr",
+    "test": "lab -vclr",
     "test-coverage-html": "lab -clr html -o report.html"
   },
   "keywords": [
