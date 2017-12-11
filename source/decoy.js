@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const Checksum = require('@konfirm/checksum');
 const DummyTrap = require('./trap');
 
 const storage = new WeakMap();
@@ -37,15 +37,7 @@ class Decoy {
 	 *  @memberof  Decoy
 	 */
 	static checksum(proxy) {
-		return Object.keys(proxy)
-			.sort((one, two) => -Number(one < two) || Number(one > two))
-			.reduce((checksum, key) => {
-				const value = proxy[key];
-				const update = typeof value === 'object' ? this.checksum(value) : value;
-
-				return checksum.update(`${ key }:${ update }`);
-			}, crypto.createHash('sha256'))
-			.digest('hex');
+		return Checksum.hash(proxy);
 	}
 
 	/**
