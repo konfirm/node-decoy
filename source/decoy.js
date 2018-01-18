@@ -70,7 +70,7 @@ class Decoy {
 
 			storage.delete(proxy);
 
-			linked.reduce((prev, sub) => prev.then(() => this.purge(sub)), Promise.resolve())
+			return linked.reduce((prev, sub) => prev.then(() => this.purge(sub)), Promise.resolve())
 				.then(() => {
 					linked.length = 0;
 
@@ -99,7 +99,7 @@ class Decoy {
 
 			trap.commit();
 
-			linked.reduce((prev, sub) => prev.then(() => this.commit(sub)), Promise.resolve())
+			return linked.reduce((prev, sub) => prev.then(() => this.commit(sub)), Promise.resolve())
 				.then(() => resolve(target));
 		});
 	}
@@ -124,7 +124,7 @@ class Decoy {
 
 			trap.rollback();
 
-			linked.reduce((prev, sub) => prev.then(() => this.rollback(sub)), Promise.resolve())
+			return linked.reduce((prev, sub) => prev.then(() => this.rollback(sub)), Promise.resolve())
 				.then(() => resolve(target));
 		});
 	}
