@@ -54,6 +54,24 @@ describe('README.js', () => {
 		next();
 	});
 
+	it('samples hasMutations', (next) => {
+		const original = { hello: 'world' };
+		const dummy = Decoy.create(original);
+
+		expect(Decoy.hasMutations(dummy)).to.be.false();
+
+		dummy.hello = 'universe';
+
+		expect(Decoy.hasMutations(dummy)).to.be.true();
+
+		Decoy.rollback(dummy)
+			.then(() => {
+				expect(Decoy.hasMutations(dummy)).to.be.false();
+
+				next();
+			});
+	});
+
 	it('samples commit', (next) => {
 		// const Decoy = require('@konfirm/decoy');
 		const original = { hello: 'world' };

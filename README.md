@@ -76,6 +76,27 @@ console.log(Decoy.isDecoy(dummy));     //  true;
 console.log(Decoy.isDecoy(original));  //  false;
 ```
 
+### hasMutations
+Determine whether or not the provided proxy decoy has any (nested) mutations pending. If the provided value is not a know proxy `(boolean) false` is returned.
+
+Syntax: `<boolean> Decoy.hasMutations(<any>)`
+
+```
+const Decoy = require('@konfirm/decoy);
+const original = { hello: 'world' };
+const dummy = Decoy.create(original);
+
+console.log(Decoy.hasMutations(dummy));  //  false;
+
+dummy.hello = 'universe';
+
+console.log(Decoy.hasMutations(dummy));  //  true;
+
+Decoy.rollback(dummy)
+	.then(() => {
+		console.log(Decoy.hasMutations(dummy));  //  false
+	})
+```
 
 ### commit
 Commit the proxy decoy, applying all recorded changes to the original object. Once committed, the recorded changes are truncated and the recording of changes starts over.
