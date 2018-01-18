@@ -72,8 +72,8 @@ const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
-console.log(Decoy.isDecoy(dummy));     //  'false';
-console.log(Decoy.isDecoy(original));  //  'false';
+console.log(Decoy.isDecoy(dummy));     //  true;
+console.log(Decoy.isDecoy(original));  //  false;
 ```
 
 
