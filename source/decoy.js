@@ -1,5 +1,5 @@
 const Checksum = require('@konfirm/checksum');
-const DummyTrap = require('./trap');
+const DecoyTrap = require('./trap');
 
 const storage = new WeakMap();
 
@@ -19,7 +19,7 @@ class Decoy {
 	 */
 	static create(target) {
 		const linked = [];
-		const trap = new DummyTrap((object) => linked[linked.push(this.create(object)) - 1]);
+		const trap = new DecoyTrap((object) => linked[linked.push(this.create(object)) - 1]);
 		const proxy = new Proxy(target, trap);
 
 		storage.set(proxy, { target, trap, linked });
