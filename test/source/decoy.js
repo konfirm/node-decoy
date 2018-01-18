@@ -33,6 +33,59 @@ describe('Decoy', () => {
 		next();
 	});
 
+	describe('determine if there are mutations', () => {
+		const subject = { foo: 'bar', arr: [ 1, 'b', { nested: 'foo' } ], nested: { hello: 'world' } };
+		const decoy = Decoy.create(subject);
+
+		it('shallow', (next) => {
+			expect(Decoy.hasMutations(subject)).to.be.false();
+			expect(Decoy.hasMutations(decoy)).to.be.false();
+
+			decoy.foo = 'changed';
+
+			expect(Decoy.hasMutations(decoy)).to.be.true();
+
+			Decoy.commit(decoy)
+				.then(() => {
+					expect(Decoy.hasMutations(decoy)).to.be.false();
+
+					next();
+				});
+		});
+
+		it('nested', (next) => {
+			expect(Decoy.hasMutations(decoy)).to.be.false();
+
+			decoy.nested.hello = 'changed';
+
+			expect(Decoy.hasMutations(decoy)).to.be.true();
+
+			Decoy.commit(decoy)
+				.then(() => {
+					expect(Decoy.hasMutations(decoy)).to.be.false();
+
+					next();
+				});
+		});
+
+		it('array', (next) => {
+			expect(Decoy.hasMutations(decoy)).to.be.false();
+
+			decoy.arr[0] = 2;
+			decoy.arr[1] = 'c';
+			decoy.arr[2].nested = 'changed';
+
+			expect(Decoy.hasMutations(decoy)).to.be.true();
+
+			Decoy.commit(decoy)
+				.then(() => {
+					expect(Decoy.hasMutations(decoy)).to.be.false();
+
+					next();
+				});
+		});
+	});
+
 	it('calculates consistent checksums', (next) => {
 		const one = Decoy.create({ zzz: 'aaa', rrr: 'sss', aaa: 'zzz' });
 		const two = Decoy.create({ rrr: 'sss', aaa: 'zzz', zzz: 'aaa' });

@@ -128,6 +128,23 @@ class Decoy {
 				.then(() => resolve(target));
 		});
 	}
+
+	/**
+	 *  Determine if the proxied object contains mutations
+	 *
+	 *  @static
+	 *  @param     {Object}  proxy
+	 *  @memberof  Decoy
+	 */
+	static hasMutations(proxy) {
+		if (this.isDecoy(proxy)) {
+			const { trap, linked } = storage.get(proxy);
+
+			return linked.reduce((verdict, sub) => verdict || this.hasMutations(sub), trap.mutations.length > 0);
+		}
+
+		return false;
+	}
 }
 
 module.exports = Decoy;
