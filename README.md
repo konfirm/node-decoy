@@ -107,7 +107,7 @@ Determine whether or not the provided proxy decoy has any (nested) mutations pen
 Syntax: `<boolean> Decoy.hasMutations(<any>)`
 
 ```js
-const Decoy = require('@konfirm/decoy);
+const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
