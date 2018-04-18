@@ -27,6 +27,6 @@
   },
   "dependencies": {
     "@konfirm/checksum": "^1.0.1",
-    "@konfirm/trap": "^1.1.1"
+    "@konfirm/trap": "^1.2.0"
   }
 }

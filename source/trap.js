@@ -9,13 +9,14 @@ const storage = new WeakMap();
  */
 class DecoyTrap extends Trap {
 	/**
-	 *  Creates an instance of DecoyTrap
+	 *  Creates an instance of DecoyTrap.
 	 *
-	 *  @param     {Function}  delegate
+	 *  @param     {any} delegate
+	 *  @param     {boolean} [trackOnlyLastMutation=false]
 	 *  @memberof  DecoyTrap
 	 */
-	constructor(delegate) {
-		super();
+	constructor(delegate, trackOnlyLastMutation = false) {
+		super(trackOnlyLastMutation);
 
 		storage.set(this, { delegate });
 	}

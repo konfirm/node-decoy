@@ -14,7 +14,7 @@ $ npm install --save @konfirm/decoy
 
 ## Usage
 
-```
+```js
 //  require Decoy
 const Decoy = require('@konfirm/decoy');
 //  create the original object
@@ -46,10 +46,10 @@ All direct property changes are recorded to be truly applied or reverted at a la
 ### create
 Creates a decoy proxy instance, any modification made to the decoy is recorded and can be effected using [`commit`](https://github.com/konfirm/node-decoy/blob/master/README.md#commit) or dropped using [`rollback`](https://github.com/konfirm/node-decoy/blob/master/README.md#rollback).
 
-Syntax: `<proxy decoy> Decoy.create(<object>)`
+Syntax: `<proxy decoy> Decoy.create(<object> [, <bool>])`
 
 Example:
-```
+```js
 const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -60,6 +60,31 @@ console.log(dummy.hello);     //  'universe';
 console.log(original.hello);  //  'world';
 ```
 
+#### Tracking only the latest change (new in v1.3.0)
+And additional argument has been added to the `create` method, a boolean value indicating whether to keep track of every change (the default) or to preserve only the latest state.
+Any change that effectively resets the original value is removed entirely, as Decoy no longer needs to update the value in a `commit`.
+
+Example:
+```js
+const Decoy = require('@konfirm/decoy');
+const original = { hello: 'world' };
+const dummy = Decoy.create(original, true);
+
+console.log(Decoy.hasMutations(dummy));  //  false
+console.log(dummy.hello);                //  'world';
+
+dummy.hello = 'universe';
+
+console.log(Decoy.hasMutations(dummy));  //  true
+console.log(dummy.hello);                //  'universe';
+
+dummy.hello = 'world';
+
+console.log(Decoy.hasMutations(dummy));  //  false
+console.log(dummy.hello);                //  'world';
+
+```
+
 
 ### isDecoy
 Test whether the given target is a known proxy decoy created by [`Decoy.create`](https://github.com/konfirm/node-decoy/blob/master/README.md#create)
@@ -67,7 +92,7 @@ Test whether the given target is a known proxy decoy created by [`Decoy.create`]
 Syntax: `<boolean> Decoy.isDecoy(<any>)`
 
 Example:
-```
+```js
 const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -81,7 +106,7 @@ Determine whether or not the provided proxy decoy has any (nested) mutations pen
 
 Syntax: `<boolean> Decoy.hasMutations(<any>)`
 
-```
+```js
 const Decoy = require('@konfirm/decoy);
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -98,6 +123,8 @@ Decoy.rollback(dummy)
 	})
 ```
 
+_NOTE_: If the decoy was created with the flag to track only the last change, `hasMutations` will return false if the last change brought the previously changed value(s) back to their original values.
+
 ### commit
 Commit the proxy decoy, applying all recorded changes to the original object. Once committed, the recorded changes are truncated and the recording of changes starts over.
 The return value is a Promise, which rejects if the given value is not a (known) proxy decoy.
@@ -105,7 +132,7 @@ The return value is a Promise, which rejects if the given value is not a (known)
 Syntax: `<Promise> Decoy.commit(<proxy decoy>)`
 
 Example:
-```
+```js
 const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -132,7 +159,7 @@ The return value is a Promise, which rejects if the given value is not a (known)
 Syntax: `<Promise> Decoy.rollback(<proxy decoy>)`
 
 Example:
-```
+```js
 const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -160,7 +187,7 @@ The return value is a Promise, which rejects if the given value is not a (known)
 Syntax: `<Promise> Decoy.purge(<proxy decoy>)`
 
 Example:
-```
+```js
 const Decoy = require('@konfirm/decoy');
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
@@ -186,7 +213,7 @@ Decoy.purge(dummy)
 
 ## License
 
-MIT License Copyright (c) 2017 Rogier Spieker (Konfirm)
+MIT License Copyright (c) 2017-2018 Rogier Spieker (Konfirm)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

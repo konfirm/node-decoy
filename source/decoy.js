@@ -13,13 +13,14 @@ class Decoy {
 	 *  Create a Decoy target
 	 *
 	 *  @static
-	 *  @param     {Object}  target
-	 *  @return    {Proxy}   decoy
+	 *  @param     {Object}   target
+	 *  @param     {boolean}  [onlyLast=false]
+	 *  @return    {Proxy}    decoy
 	 *  @memberof  Decoy
 	 */
-	static create(target) {
+	static create(target, onlyLast = false) {
 		const linked = [];
-		const trap = new DecoyTrap((object) => linked[linked.push(this.create(object)) - 1]);
+		const trap = new DecoyTrap((object) => linked[linked.push(this.create(object, onlyLast)) - 1], onlyLast);
 		const proxy = new Proxy(target, trap);
 
 		storage.set(proxy, { target, trap, linked });

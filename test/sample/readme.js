@@ -43,6 +43,27 @@ describe('README.js', () => {
 		next();
 	});
 
+	it('samples create - only last change', (next) => {
+		// const Decoy = require('@konfirm/decoy');
+		const original = { hello: 'world' };
+		const dummy = Decoy.create(original, true);
+
+		expect(Decoy.hasMutations(dummy)).to.be.false();
+		expect(dummy.hello).to.equal('world');
+
+		dummy.hello = 'universe';
+
+		expect(Decoy.hasMutations(dummy)).to.be.true();
+		expect(dummy.hello).to.equal('universe');
+
+		dummy.hello = 'world';
+
+		expect(Decoy.hasMutations(dummy)).to.be.false();
+		expect(dummy.hello).to.equal('world');
+
+		next();
+	});
+
 	it('samples isDecoy', (next) => {
 		// const Decoy = require('@konfirm/decoy');
 		const original = { hello: 'world' };
