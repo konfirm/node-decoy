@@ -1,6 +1,6 @@
 {
   "name": "@konfirm/decoy",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Proxy objects, keeping track of mutations to commit/rollback",
   "main": "source/decoy.js",
   "scripts": {
