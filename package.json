@@ -22,11 +22,11 @@
   "author": "Rogier Spieker <rogier@konfirm.eu>",
   "license": "MIT",
   "devDependencies": {
-    "@konfirm/labrat": "^1.1.0",
+    "@konfirm/labrat": "^1.2.0",
     "eslint-config-strict": "^14.0.1"
   },
   "dependencies": {
-    "@konfirm/checksum": "^1.0.1",
-    "@konfirm/trap": "^1.2.0"
+    "@konfirm/checksum": "^1.0.2",
+    "@konfirm/trap": "^1.2.1"
   }
 }
