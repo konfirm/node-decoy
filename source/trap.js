@@ -70,6 +70,10 @@ class DecoyTrap extends Trap {
 	 *  @memberof  DecoyTrap
 	 */
 	get(target, key) {
+		if (key === Symbol.toPrimitive && key in target) {
+			return target[Symbol.toPrimitive].bind(target);
+		}
+
 		const value = super.get(target, key);
 
 		return typeof value === 'object' ? this.cache(target, value) : value;

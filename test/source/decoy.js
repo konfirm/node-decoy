@@ -1,6 +1,7 @@
 /* global source, describe, it, expect */
 
 const Decoy = source('decoy');
+const Custom = require('../extra/custom.js');
 
 describe('Decoy', () => {
 	it('creates a decoy', (next) => {
@@ -31,6 +32,28 @@ describe('Decoy', () => {
 		expect(JSON.stringify(subject)).to.equal('{"foo":"bar"}');
 
 		next();
+	});
+
+	describe('allows primitive comparison', () => {
+		it('compares Dates', (next) => {
+			const one = Decoy.create(new Date('2001'));
+			const two = Decoy.create(new Date('2002'));
+
+			expect(one < two).to.be.true();
+			expect(two < one).to.be.false();
+
+			next();
+		});
+
+		it('compares custom object implementing Symbol.toPrimitive', (next) => {
+			const one = Decoy.create(new Custom('foo'));
+			const two = Decoy.create(new Custom('bar'));
+
+			expect(one > two).to.be.true();
+			expect(two > one).to.be.false();
+
+			next();
+		});
 	});
 
 	describe('determine if there are mutations', () => {
