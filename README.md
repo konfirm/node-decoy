@@ -5,6 +5,9 @@
 
 Create Proxy objects and keep track of mutations, reflecting them on access and providing the ability to either commit them or roll them back.
 
+## A word of caution
+Decoy can only keep track of direct property changes, this means that any decoy which work solely though getters/setters will directly influence the underlying target. A good example is the built-in `Date` object, which is modified using its setter methods (e.g. `setFullYear(2018)`).
+
 ## Installation
 Decoy is a scoped package, which means both the installation and `require` (or `import`) need the scope along with the package name:
 
