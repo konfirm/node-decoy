@@ -1,14 +1,26 @@
 language: node_js
 node_js:
-- '7'
-- '8'
-- '9'
-- '10'
-- '11'
-- '12'
+    - '7'
+    - '8'
+    - '9'
+    - '10'
+    - '11'
+    - '12'
+
+jobs:
+    include:
+        - stage: npm release
+          if: tag IS present
+          node_js: 12
+          deploy:
+              provider: npm
+              email: rogier+npm@konfirm.eu
+              on:
+                  branch: master
+                  tags: true
+              api_key:
+                  secure: JkbLBjJ/ltn5XjB61PC0x2wS7LgPRucHYgCVsvbkC4oYYow0ZGAlbAikuLHEygT+jd/2xG/4m4oJ73NymcYYUuw3qrguKHUDVSXCVos0ULbqk01Als1b8OEDWdLcjt+Ajjx15sBI8+tahcgz/2yo/XNFAI7iyyBVqxtaUTNxh3RN0s7W9KLJcQDOC0AzX+OqHXIAeFYS/ndoPkKHZF9hS3Nq/sJN3K4AbrIOzHG9RBAOrbHU//V2UbKs7vXB8OoLW+AnwKji83V568KvQ+bBvhnHZJ1jD8RtUAC14bO9eaB0rq1wrxF30rHzGFMkcS44NX5x/k3e8dKCD7Bdvsqh4FckNgL6a5irSuxXXq6oBoryJW1POxGalzgMerhzDqVJsbY6DtppyiUJIhVKVcJ7ul46+qhPyQ7yZuKH4cFzAU7+gJlvzpGFcikecs6aWGZaGe2JS/9b++K05c1O9OvTLf0w+U+99qYFxLBz4/VYVLdKZWG2Huv/noNcvfcXwwI2bqf9+o4yroHDbhIzkP8FLQKj18gMzA9e2aK1NN63rH6NSv9Ew+/RtokXnb7o7pkr+duaWeEPuzJkxZBH9mV8tk6056+TIUnuOTa2y8oWuHYA63waNiCxByfYnH4eZvisKa6R5bJHi3NuTeDHk3pxnhTxMwlGhNuLxmk4DcR42jk=
+
 notifications:
-  slack:
-    secure: bPOAvoK8zqSl2tQBLtfIvCbDCk47nYZiCsJEZBnDgeGIEWlSyB+eDOyFqoBpoXhoOCLRCvHYeC9Wti1U9dJgVPuYqS2kkWs1JxH/JTwl+jbRViHfvbD+KglMduA8txj2IstQl/53yc9I/VWtWKdm2m/IusARsjd+x2dSL3iEUAd2P+hyz2+s9DPelHAF+eB1KzbifZZT11SenJ/RF3feuQkhISVI4a5OmM2qH9LDW6ArLK2nC8kyZZqKeU5YFkReilV9Gg2BkvCeUK17PkEiuSjXFz9SrtI7HrV0xIH9FzDnxmZ3uAOOTR/ieKaxWwkWmfssFgDz3segQwlciYfYfthTCZwGb8QjSfJtsxJoAOfEyHWgDd1T6ngRc7DyPgi3J9cHjWX2Uvr7y9GR36P4BpRaDg1kBWocW9Exbhp21b+hsi1xiu5wdJfzsFRzSqCqY+ZOYxMwAizI/HImM8nAXRDdrITZs1/3cEvDTnNXhEoh5xT7wcwEWSpN9St5UQpkNHw5bsIk+Z27kIrLvnH4BLnMkj7uzhybpK1i+RzbJU0AKDccxb/+hxw3VnpC7hegvawszyHNeh5V+Frm7EDzrVlpNfzGtsISqh6nCD333749h2C+T6j2ge+A4QgIjry4slKaJnEskfYo5lyThFMMh9382gq9sPeDuJ/D115ksXk=
-deploy:
-  api_key:
-    secure: JkbLBjJ/ltn5XjB61PC0x2wS7LgPRucHYgCVsvbkC4oYYow0ZGAlbAikuLHEygT+jd/2xG/4m4oJ73NymcYYUuw3qrguKHUDVSXCVos0ULbqk01Als1b8OEDWdLcjt+Ajjx15sBI8+tahcgz/2yo/XNFAI7iyyBVqxtaUTNxh3RN0s7W9KLJcQDOC0AzX+OqHXIAeFYS/ndoPkKHZF9hS3Nq/sJN3K4AbrIOzHG9RBAOrbHU//V2UbKs7vXB8OoLW+AnwKji83V568KvQ+bBvhnHZJ1jD8RtUAC14bO9eaB0rq1wrxF30rHzGFMkcS44NX5x/k3e8dKCD7Bdvsqh4FckNgL6a5irSuxXXq6oBoryJW1POxGalzgMerhzDqVJsbY6DtppyiUJIhVKVcJ7ul46+qhPyQ7yZuKH4cFzAU7+gJlvzpGFcikecs6aWGZaGe2JS/9b++K05c1O9OvTLf0w+U+99qYFxLBz4/VYVLdKZWG2Huv/noNcvfcXwwI2bqf9+o4yroHDbhIzkP8FLQKj18gMzA9e2aK1NN63rH6NSv9Ew+/RtokXnb7o7pkr+duaWeEPuzJkxZBH9mV8tk6056+TIUnuOTa2y8oWuHYA63waNiCxByfYnH4eZvisKa6R5bJHi3NuTeDHk3pxnhTxMwlGhNuLxmk4DcR42jk=
+    slack:
+        secure: bPOAvoK8zqSl2tQBLtfIvCbDCk47nYZiCsJEZBnDgeGIEWlSyB+eDOyFqoBpoXhoOCLRCvHYeC9Wti1U9dJgVPuYqS2kkWs1JxH/JTwl+jbRViHfvbD+KglMduA8txj2IstQl/53yc9I/VWtWKdm2m/IusARsjd+x2dSL3iEUAd2P+hyz2+s9DPelHAF+eB1KzbifZZT11SenJ/RF3feuQkhISVI4a5OmM2qH9LDW6ArLK2nC8kyZZqKeU5YFkReilV9Gg2BkvCeUK17PkEiuSjXFz9SrtI7HrV0xIH9FzDnxmZ3uAOOTR/ieKaxWwkWmfssFgDz3segQwlciYfYfthTCZwGb8QjSfJtsxJoAOfEyHWgDd1T6ngRc7DyPgi3J9cHjWX2Uvr7y9GR36P4BpRaDg1kBWocW9Exbhp21b+hsi1xiu5wdJfzsFRzSqCqY+ZOYxMwAizI/HImM8nAXRDdrITZs1/3cEvDTnNXhEoh5xT7wcwEWSpN9St5UQpkNHw5bsIk+Z27kIrLvnH4BLnMkj7uzhybpK1i+RzbJU0AKDccxb/+hxw3VnpC7hegvawszyHNeh5V+Frm7EDzrVlpNfzGtsISqh6nCD333749h2C+T6j2ge+A4QgIjry4slKaJnEskfYo5lyThFMMh9382gq9sPeDuJ/D115ksXk=
