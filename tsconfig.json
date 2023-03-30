@@ -1,0 +1,12 @@
+{
+	"include": [
+		"source/main.ts"
+	],
+	"compilerOptions": {
+		"declaration": true,
+		"esModuleInterop": true,
+		"moduleResolution": "Node",
+		"outDir": "dist/",
+		"target": "es6"
+	}
+}

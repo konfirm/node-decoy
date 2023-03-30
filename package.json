@@ -2,10 +2,24 @@
   "name": "@konfirm/decoy",
   "version": "1.4.7",
   "description": "Proxy objects, keeping track of mutations to commit/rollback",
-  "main": "source/decoy.js",
+  "iife": "dist/decoy.js",
+  "main": "dist/decoy.cjs.js",
+  "module": "dist/decoy.es.js",
+  "types": "dist/decoy.d.ts",
   "scripts": {
-    "test": "./node_modules/.bin/lab -vclr",
-    "test-coverage-html": "./node_modules/.bin/lab -clr html -o report.html"
+    "test": "run-script-os",
+    "test:nix": "ts-node node_modules/tape/bin/tape 'test/**/*.ts'",
+    "test:win32": "ts-node node_modules/tape/bin/tape test/**/*.ts",
+    "test:coverage": "run-script-os",
+    "test:coverage:nix": "nyc --reporter=html --require ts-node/register tape 'test/**/*.ts' | tap-arc",
+    "test:coverage:win32": "nyc --reporter=html --require ts-node/register tape test/**/*.ts | tap-arc",
+    "test:pretty": "run-script-os",
+    "test:pretty:nix": "nyc --require ts-node/register tape 'test/**/*.ts' | tap-arc",
+    "test:pretty:win32": "nyc --require ts-node/register tape test/**/*.ts | tap-arc",
+    "prebuild": "tsc --declarationDir temp --declaration true --emitDeclarationOnly true",
+    "build": "rollup -c rollup.config.mjs",
+    "postbuild": "rm -rf temp",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -25,11 +39,24 @@
     "node": ">=8"
   },
   "devDependencies": {
-    "@konfirm/labrat": "^2.0.2",
-    "eslint-config-strict": "^14.0.1"
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/tape": "^4.13.3",
+    "nyc": "^15.1.0",
+    "rollup": "^3.20.2",
+    "rollup-plugin-dts": "^5.3.0",
+    "run-script-os": "^1.1.6",
+    "tap-arc": "^0.3.5",
+    "tape": "^5.6.3",
+    "template-literal-each": "^3.0.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.2"
   },
   "dependencies": {
-    "@konfirm/checksum": "^1.0.8",
-    "@konfirm/trap": "^1.2.7"
+    "@konfirm/checksum": "^2.0.1",
+    "@konfirm/trap": "^2.0.2"
   }
 }
