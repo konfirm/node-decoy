@@ -1,6 +1,6 @@
 {
   "name": "@konfirm/decoy",
-  "version": "1.4.7",
+  "version": "2.0.0",
   "description": "Proxy objects, keeping track of mutations to commit/rollback",
   "iife": "dist/decoy.js",
   "main": "dist/decoy.cjs.js",
