@@ -1,7 +1,7 @@
 import { hash } from "@konfirm/checksum";
 import { DecoyTrap } from "./Trap";
 
-type Decoy<T extends object> = T;
+export type Decoy<T extends object> = T;
 type Decoyed<T extends object> = {
     target: T;
     trap: DecoyTrap;

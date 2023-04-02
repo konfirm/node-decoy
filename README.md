@@ -45,6 +45,18 @@ Decoy.commit(dummy)
 Decoy is a collection of individuel functions which work with any object which allows to be [proxied](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 All direct property changes are recorded to be truly applied (`commit`) or reverted (`rollback`) at a later stage. The created proxy decoys will reflect the changes made.
 
+### exports
+
+| name         | syntax                                                           | description                                                                                         |
+| ------------ | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Decoy        | `Decoy<object>`                                                  | _TypeScript_ Type descibing a Decoy (which is just an alias for the object provided)                |
+| create       | `create<T>(target:T, boolean: onlyLastKeyMutations): Decoy<T>`   | create a new decoy for target                                                                       |
+| checksum     | `checksum(decoy: Decoy<T>):string`                               | calculate the checksum of the decoy                                                                 |
+| isDecoy      | `isDecoy<T>(target: Decoy<T>):boolean`                           | is the target a known Decoy                                                                         |
+| purge        | `purge<T = object>(decoy: Decoy<T>): T                           | clean the Decoy (including its nested ones)                                                         |
+| commit       | `commit<T = object>(decoy: Decoy<T> [, key 1, ..., keyN])`       | commit the changes to the decoyed object, optionally limited to only the keys specified             |
+| rollback     | `rollback<T = object>(decoy: Decoy<T> [, key 1, ..., keyN])`     | roll back the changes to the decoyed object, optionally limited to only the keys specified          |
+| hasMutations | `hasMutations<T = object>(decoy: Decoy<T> [, key 1, ..., keyN])` | determine whether the decoyed object has any changes, optionally limited to only the keys specified |
 
 ### create
 Creates a decoy proxy instance, any modification made to the decoy is recorded and can be effected using [`commit`](https://github.com/konfirm/node-decoy/blob/master/README.md#commit) or dropped using [`rollback`](https://github.com/konfirm/node-decoy/blob/master/README.md#rollback).
@@ -293,7 +305,7 @@ Decoy.purge(dummy)
 
 ## License
 
-MIT License Copyright (c) 2017-2018 Rogier Spieker (Konfirm)
+MIT License Copyright (c) 2017-2023 Rogier Spieker (Konfirm)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
