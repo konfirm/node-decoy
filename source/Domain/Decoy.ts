@@ -9,6 +9,15 @@ type Decoyed<T extends object> = {
 };
 const storage: WeakMap<Decoy<object>, Decoyed<object>> = new WeakMap();
 
+/**
+ * Create a new Decoy
+ *
+ * @export
+ * @template T
+ * @param {T} target
+ * @param {boolean} [onlyLastKeyMutation]
+ * @return {*}  {Decoy<T>}
+ */
 export function create<T extends object = object>(target: T, onlyLastKeyMutation?: boolean): Decoy<T> {
     const linked: Array<Decoy<object>> = [];
     const trap = new DecoyTrap((t) => linked[linked.push(create(t, onlyLastKeyMutation)) - 1], onlyLastKeyMutation);
@@ -19,6 +28,13 @@ export function create<T extends object = object>(target: T, onlyLastKeyMutation
     return <Decoy<T>>proxy;
 }
 
+/**
+ * Calculate the checksum of given Decoy
+ *
+ * @export
+ * @param {Decoy<object>} proxy
+ * @return {*}  {string}
+ */
 export function checksum(proxy: Decoy<object>): string {
     return hash(proxy);
 }
@@ -27,6 +43,15 @@ export function isDecoy<T extends object = object>(input: any): input is Decoy<T
     return storage.has(input);
 }
 
+/**
+ * Traverse the Decoy and its linked Decoys executing the provided action
+ *
+ * @template T
+ * @param {Decoy<T>} decoy
+ * @param {((decoyed: Decoyed<object>, filter?: { [key: string | symbol]: string | symbol }) => void | Promise<void>)} action
+ * @param {Array<keyof T>} [keys]
+ * @return {*}  {Promise<T>}
+ */
 async function traverse<T extends object>(decoy: Decoy<T>, action: (decoyed: Decoyed<object>, filter?: { [key: string | symbol]: string | symbol }) => void | Promise<void>, keys?: Array<keyof T>): Promise<T> {
     if (!isDecoy(decoy)) {
         throw new Error(`Not a known Decoy: ${decoy}`);
@@ -49,6 +74,14 @@ async function traverse<T extends object>(decoy: Decoy<T>, action: (decoyed: Dec
     return target;
 }
 
+/**
+ * Purge a Decoy and its linked Decoys
+ *
+ * @export
+ * @template T
+ * @param {Decoy<T>} decoy
+ * @return {*}  {Promise<T>}
+ */
 export function purge<T extends object = object>(decoy: Decoy<T>): Promise<T> {
     return traverse(
         decoy,
@@ -59,14 +92,41 @@ export function purge<T extends object = object>(decoy: Decoy<T>): Promise<T> {
     );
 }
 
+/**
+ * Commit the mutations to the decoyed object
+ *
+ * @export
+ * @template T
+ * @param {Decoy<T>} decoy
+ * @param {...Array<keyof T>} keys
+ * @return {*}  {Promise<T>}
+ */
 export function commit<T extends object = object>(decoy: Decoy<T>, ...keys: Array<keyof T>): Promise<T> {
     return traverse(decoy, ({ trap }) => trap.commit(), keys);
 }
 
+/**
+ * Roll back the mutations on the Decoy
+ *
+ * @export
+ * @template T
+ * @param {Decoy<T>} decoy
+ * @param {...Array<keyof T>} keys
+ * @return {*}  {Promise<T>}
+ */
 export function rollback<T extends object = object>(decoy: Decoy<T>, ...keys: Array<keyof T>): Promise<T> {
     return traverse(decoy, ({ trap }) => trap.rollback(), keys);
 }
 
+/**
+ * Check whether the Decoy has mutations
+ *
+ * @export
+ * @template T
+ * @param {Decoy<T>} decoy
+ * @param {...Array<keyof T>} keys
+ * @return {*}  {boolean}
+ */
 export function hasMutations<T extends object = object>(decoy: Decoy<T>, ...keys: Array<keyof T>): boolean {
     if (isDecoy(decoy)) {
         const { trap, linked } = <Decoyed<T>>storage.get(decoy);
