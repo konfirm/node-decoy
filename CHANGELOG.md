@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 
+- *BREAKING* There's no more "default" export, all functions are exported individually, changing the way `import` and/or `require` work
+- `commit`, `rollback` and `hasMutations` now take optional keys to narrow down the effect of the function to only those keys
 - Ported the library to TypeScript
 - updated dependencies
 

@@ -17,9 +17,9 @@ $ npm install --save @konfirm/decoy
 
 ## Usage
 
-```js
+```ts
 //  require Decoy
-const Decoy = require('@konfirm/decoy');
+import * as Decoy from '@konfirm/decoy';
 //  create the original object
 const original = { foo: 'bar', baz: { hello: 'world' }};
 //  create the decoy dummy for original
@@ -42,18 +42,19 @@ Decoy.commit(dummy)
 ```
 
 ## API
-Decoy is fully static and works with any object which allows to be [proxied](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
-All direct property changes are recorded to be truly applied or reverted at a later stage. The created proxy decoys will reflect the changes made.
+Decoy is a collection of individuel functions which work with any object which allows to be [proxied](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+All direct property changes are recorded to be truly applied (`commit`) or reverted (`rollback`) at a later stage. The created proxy decoys will reflect the changes made.
 
 
 ### create
 Creates a decoy proxy instance, any modification made to the decoy is recorded and can be effected using [`commit`](https://github.com/konfirm/node-decoy/blob/master/README.md#commit) or dropped using [`rollback`](https://github.com/konfirm/node-decoy/blob/master/README.md#rollback).
 
-Syntax: `<proxy decoy> Decoy.create(<object> [, <bool>])`
+Syntax: `create(<object> [, <bool>]): Decoy<object>`
 
-Example:
-```js
-const Decoy = require('@konfirm/decoy');
+Examples:
+
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
@@ -63,13 +64,24 @@ console.log(dummy.hello);     //  'universe';
 console.log(original.hello);  //  'world';
 ```
 
+```ts
+import { create } from '@konfirm/decoy';
+const original = { hello: 'world' };
+const dummy = create(original);
+
+dummy.hello = 'universe';
+
+console.log(dummy.hello);     //  'universe';
+console.log(original.hello);  //  'world';
+```
+
 #### Tracking only the latest change (new in v1.3.0)
-And additional argument has been added to the `create` method, a boolean value indicating whether to keep track of every change (the default) or to preserve only the latest state.
+An additional argument has been added to the `create` method, a boolean value indicating whether to keep track of every change (the default) or to preserve only the latest state.
 Any change that effectively resets the original value is removed entirely, as Decoy no longer needs to update the value in a `commit`.
 
 Example:
-```js
-const Decoy = require('@konfirm/decoy');
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original, true);
 
@@ -85,7 +97,6 @@ dummy.hello = 'world';
 
 console.log(Decoy.hasMutations(dummy));  //  false
 console.log(dummy.hello);                //  'world';
-
 ```
 
 
@@ -95,8 +106,8 @@ Test whether the given target is a known proxy decoy created by [`Decoy.create`]
 Syntax: `<boolean> Decoy.isDecoy(<any>)`
 
 Example:
-```js
-const Decoy = require('@konfirm/decoy');
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
@@ -107,10 +118,11 @@ console.log(Decoy.isDecoy(original));  //  false;
 ### hasMutations
 Determine whether or not the provided proxy decoy has any (nested) mutations pending. If the provided value is not a know proxy `(boolean) false` is returned.
 
-Syntax: `<boolean> Decoy.hasMutations(<any>)`
+Syntax: `<Promise> Decoy.hasMutations(<proxy decoy> [, <keyof proxy 1>, <keyof proxy N>, ...])`
 
-```js
-const Decoy = require('@konfirm/decoy');
+
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
@@ -128,15 +140,36 @@ Decoy.rollback(dummy)
 
 _NOTE_: If the decoy was created with the flag to track only the last change, `hasMutations` will return false if the last change brought the previously changed value(s) back to their original values.
 
+#### Check for specific key mutations (new in v2.0.0)
+In order to determine whether one or more specific keys have been changed, the `hasMutations` function allows for one or more property keys to be provided, the result will then be `true` if any of those keys was changed _on the decoy provided_.
+
+```ts
+import { create, hasMutations } from '@konfirm/decoy';
+
+const subject = { ones: 1, twos: 2, nested: { ones: 1, twos: 2} };
+const dummy = create(subject);
+
+dummy.ones = 11;
+dummy.nested.twos = 22;
+
+console.log(hasMutations(dummy)); // true
+console.log(hasMutations(dummy, 'ones')); // true
+console.log(hasMutations(dummy, 'twos')); // false
+console.log(hasMutations(dummy.nested)); // true
+console.log(hasMutations(dummy.nested, 'ones')); // false
+console.log(hasMutations(dummy.nested, 'twos')); // true
+```
+
+
 ### commit
 Commit the proxy decoy, applying all recorded changes to the original object. Once committed, the recorded changes are truncated and the recording of changes starts over.
 The return value is a Promise, which rejects if the given value is not a (known) proxy decoy.
 
-Syntax: `<Promise> Decoy.commit(<proxy decoy>)`
+Syntax: `<Promise> Decoy.commit(<proxy decoy> [, <keyof proxy 1>, <keyof proxy N>, ...])`
 
 Example:
-```js
-const Decoy = require('@konfirm/decoy');
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
@@ -155,6 +188,28 @@ Decoy.commit(original)
 	.catch((error) => console.error(error));
 ```
 
+#### commit specific key mutations (new in v2.0.0)
+In order to commit one or more specific changes, it is possible to specify the keys which should be commited.
+
+```ts
+import { create, commit } from '@konfirm/decoy';
+
+const original = { hello: 'world', nested: { hello: 'world' } };
+const dummy = create(original);
+
+dummy.hello = 'universe';
+dummy.nested.hello = 'universe';
+
+commit(dummy, 'nested')
+	.then((result) => {
+		console.log(result === original); // true
+		console.log(dummy.nested.hello); // universe
+		console.log(original.nested.hello); // universe
+		console.log(dummy.hello); // universe
+		console.log(original.hello); // world
+	});
+```
+
 ### rollback
 Roll back all recorded changes to the proxy decoy, dropping all recorded changes. This truncates all recorded changes and the recording as if nothing has changed.
 The return value is a Promise, which rejects if the given value is not a (known) proxy decoy.
@@ -162,8 +217,8 @@ The return value is a Promise, which rejects if the given value is not a (known)
 Syntax: `<Promise> Decoy.rollback(<proxy decoy>)`
 
 Example:
-```js
-const Decoy = require('@konfirm/decoy');
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 
@@ -182,6 +237,28 @@ Decoy.rollback(original)
 	.catch((error) => console.error(error));
 ```
 
+#### rollback specific key mutations (new in v2.0.0)
+In order to roll back one or more specific changes, it is possible to specify the keys which should be rolled back.
+
+```ts
+import { create, rollback } from '@konfirm/decoy';
+
+const original = { hello: 'world', nested: { hello: 'world' } };
+const dummy = create(original);
+
+dummy.hello = 'universe';
+dummy.nested.hello = 'universe';
+
+rollback(dummy, 'nested')
+	.then((result) => {
+		console.log(result === original); // true
+		console.log(dummy.nested.hello); // world
+		console.log(original.nested.hello); // world
+		console.log(dummy.hello); // universe
+		console.log(original.hello); // world
+	});
+```
+
 
 ### purge
 Removes a proxy decoy from the internal list of created decoys. Cleaning up all of the record changes.
@@ -190,8 +267,8 @@ The return value is a Promise, which rejects if the given value is not a (known)
 Syntax: `<Promise> Decoy.purge(<proxy decoy>)`
 
 Example:
-```js
-const Decoy = require('@konfirm/decoy');
+```ts
+import * as Decoy from '@konfirm/decoy';
 const original = { hello: 'world' };
 const dummy = Decoy.create(original);
 

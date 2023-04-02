@@ -89,6 +89,25 @@ test('README samples - hasMutations', async (t) => {
 	t.end();
 });
 
+test('README samples - partial hasMutations', (t) => {
+	// import { create, hasMutations } from '@konfirm/decoy';
+
+	const subject = { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } };
+	const dummy = create(subject);
+
+	dummy.ones = 11;
+	dummy.nested.twos = 22;
+
+	t.true(hasMutations(dummy), 'dummy has mutations');
+	t.true(hasMutations(dummy, 'ones'), 'dummy has mutations on "ones"');
+	t.false(hasMutations(dummy, 'twos'), 'dummy has no mutations on "twos"');
+	t.true(hasMutations(dummy.nested), 'dummy.nested has mutations');
+	t.false(hasMutations(dummy.nested, 'ones'), 'dummy.nested has no mutations on "ones"');
+	t.true(hasMutations(dummy.nested, 'twos'), 'dummy.nested has mutations on "twos"');
+
+	t.end();
+});
+
 test('README samples - commit', async (t) => {
 	// import { create, commit } from '@konfirm/decoy';
 	const original = { hello: 'world' };
@@ -117,6 +136,26 @@ test('README samples - commit', async (t) => {
 	t.end();
 });
 
+test('README samples - partial commit', async (t) => {
+	// import { create, commit } from '@konfirm/decoy';
+
+	const original = { hello: 'world', nested: { hello: 'world' } };
+	const dummy = create(original);
+
+	dummy.hello = 'universe';
+	dummy.nested.hello = 'universe';
+
+	const result = await commit(dummy, 'nested')
+
+	t.equal(result === original, true);
+	t.equal(dummy.nested.hello, 'universe');
+	t.equal(original.nested.hello, 'universe');
+	t.equal(dummy.hello, 'universe');
+	t.equal(original.hello, 'world');
+
+	t.end();
+});
+
 test('README samples - rollback', async (t) => {
 	// import { create, rollback } from '@konfirm/decoy';
 	const original = { hello: 'world' };
@@ -141,6 +180,26 @@ test('README samples - rollback', async (t) => {
 	catch (error) {
 		t.true(/Not a known Decoy/.test(error.message), 'rollback on original rejects with Error "Not a known Decoy"');
 	}
+});
+
+test('README samples - partial rollback', async (t) => {
+	// import { create, rollback } from '@konfirm/decoy';
+
+	const original = { hello: 'world', nested: { hello: 'world' } };
+	const dummy = create(original);
+
+	dummy.hello = 'universe';
+	dummy.nested.hello = 'universe';
+
+	const result = await rollback(dummy, 'nested')
+
+	t.equal(result === original, true);
+	t.equal(dummy.nested.hello, 'world');
+	t.equal(original.nested.hello, 'world');
+	t.equal(dummy.hello, 'universe');
+	t.equal(original.hello, 'world');
+
+	t.end();
 });
 
 test('README samples - purge', async (t) => {

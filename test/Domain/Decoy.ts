@@ -1,4 +1,5 @@
 import test from 'tape';
+import { each } from 'template-literal-each';
 import * as Decoy from '../../source/Domain/Decoy';
 
 test('Domain/Decoy - exports', (t) => {
@@ -177,7 +178,6 @@ test('Domain/Decoy - decoys allow for primitive comparison', (t) => {
     });
 });
 
-
 test('Domain/Decoy - checksum', (t) => {
     const one: { [key: string]: unknown } = Decoy.create({ zzz: 'aaa', rrr: 'sss', aaa: 'zzz' });
     const two: { [key: string]: unknown } = Decoy.create({ rrr: 'sss', aaa: 'zzz', zzz: 'aaa' });
@@ -245,7 +245,7 @@ test('Domain/Decoy - checksum', (t) => {
 
 test('Domain/Decoy - rollback', async (t) => {
     const subject = { aaa: 'aaa' };
-    const decoy = Decoy.create(subject);
+    const decoy = Decoy.create<{ [key: string]: unknown }>(subject);
 
     t.equal(subject.aaa, 'aaa', 'subject.aaa is "aaa"');
     t.equal(decoy.aaa, 'aaa', 'subject.aaa is "aaa"');
@@ -287,7 +287,7 @@ test('Domain/Decoy - nested objects', (t) => {
     const subject = { bar: { baz: 'yes' } };
     const decoy = Decoy.create<any>(subject);
 
-    t.test('Domain/Decoy - Nested rollback', async (t) => {
+    t.test('Domain/Decoy - nested objects rollback', async (t) => {
         t.true(Decoy.isDecoy(decoy.bar), 'decoy.bar is a known Decoy');
 
         decoy.foo = { bar: { baz: { qux: 'yes' } } };
@@ -309,10 +309,23 @@ test('Domain/Decoy - nested objects', (t) => {
         t.deepEqual(decoy, { bar: { baz: 'yes' } }, `decoy is { bar: { baz: 'yes' }}`);
         t.false(Decoy.hasMutations(decoy), `decoy has no mutations`);
 
+        decoy.bar.baz = 'no';
+
+        t.deepEqual(subject, { bar: { baz: 'yes' } }, `subject is { bar: { baz: 'yes' }}`);
+        t.deepEqual(decoy, { bar: { baz: 'no' } }, `subject is { bar: { baz: 'no' }}`);
+        t.true(Decoy.hasMutations(decoy), `decoy has mutations`);
+
+        const nested = await Decoy.rollback(decoy.bar);
+
+        t.equal(nested, subject.bar, `commit resolved the original subject.bar`);
+        t.deepEqual(subject, { bar: { baz: 'yes' } }, `subject is { bar: { baz: 'yes' }}`);
+        t.deepEqual(decoy, { bar: { baz: 'yes' } }, `decoy is { bar: { baz: 'yes' }}`);
+        t.false(Decoy.hasMutations(decoy), `decoy has no mutations`);
+
         t.end();
     });
 
-    t.test('Domain/Decoy - Nested commit', async (t) => {
+    t.test('Domain/Decoy - nested objects commit', async (t) => {
         t.true(Decoy.isDecoy(decoy.bar), 'decoy.bar is a known Decoy');
 
         decoy.foo = { bar: { baz: { qux: 'yes' } } };
@@ -334,8 +347,148 @@ test('Domain/Decoy - nested objects', (t) => {
         t.deepEqual(decoy, { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'no' } }, `decoy is { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'no' } }`);
         t.false(Decoy.hasMutations(decoy), `decoy has no mutations`);
 
+        decoy.bar.baz = 'yes';
+
+        t.deepEqual(subject, { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'no' } }, `subject is { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'no' } }`);
+        t.deepEqual(decoy, { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }, `decoy is { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }`);
+        t.true(Decoy.hasMutations(decoy), `decoy has mutations`);
+
+        const nested = await Decoy.commit(decoy.bar);
+
+        t.equal(nested, subject.bar, `commit resolved the original subject.bar`);
+        t.deepEqual(subject, { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }, `subject is { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }`);
+        t.deepEqual(decoy, { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }, `decoy is { foo: { bar: { baz: { qux: 'yes' } } }, bar: { baz: 'yes' } }`);
+        t.false(Decoy.hasMutations(decoy), `decoy has no mutations`);
+
         t.end();
     });
+
+    t.end();
+});
+
+test('Domain/Decoy - partial actions', async (t) => {
+    const subject = { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } };
+    const decoy = Decoy.create(subject, true);
+
+    decoy.ones = 111;
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.true(Decoy.hasMutations(decoy, 'ones'), 'decoy has mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 111, twos: 2, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 111, twos: 2, nested: { ones: 1, twos: 2 } }')
+
+    decoy.ones = 1;
+
+    t.false(Decoy.hasMutations(decoy), 'decoy has no mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }')
+
+    decoy.twos = 222;
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.true(Decoy.hasMutations(decoy, 'twos'), 'decoy has mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+
+    await Decoy.rollback(decoy, 'ones');
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.true(Decoy.hasMutations(decoy, 'twos'), 'decoy has mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 2, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+
+    await Decoy.commit(decoy, 'twos', 'nested');
+
+    t.false(Decoy.hasMutations(decoy), 'decoy has no mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+
+    decoy.nested.ones = 111;
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.true(Decoy.hasMutations(decoy, 'nested'), 'decoy has mutations on "nested"');
+    t.true(Decoy.hasMutations(decoy.nested), 'decoy.nested has mutations');
+    t.true(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 111, twos: 2 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 111, twos: 2 } }')
+
+    await Decoy.rollback(decoy, 'nested');
+
+    t.false(Decoy.hasMutations(decoy), 'decoy has no mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+
+    decoy.nested.twos = 222;
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.true(Decoy.hasMutations(decoy, 'nested'), 'decoy has mutations on "nested"');
+    t.true(Decoy.hasMutations(decoy.nested), 'decoy.nested has mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.true(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }')
+
+    await Decoy.commit(decoy, 'ones', 'twos');
+
+    t.true(Decoy.hasMutations(decoy), 'decoy has mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.true(Decoy.hasMutations(decoy, 'nested'), 'decoy has mutations on "nested"');
+    t.true(Decoy.hasMutations(decoy.nested), 'decoy.nested has mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.true(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 2 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }')
+
+    await Decoy.commit(decoy, 'nested');
+
+    t.false(Decoy.hasMutations(decoy), 'decoy has no mutations');
+    t.false(Decoy.hasMutations(decoy, 'ones'), 'decoy has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy, 'twos'), 'decoy has no mutations on "twos"');
+    t.false(Decoy.hasMutations(decoy, 'nested'), 'decoy has no mutations on "nested"');
+    t.false(Decoy.hasMutations(decoy.nested), 'decoy.nested has no mutations');
+    t.false(Decoy.hasMutations(decoy.nested, 'ones'), 'decoy.nested has no mutations on "ones"');
+    t.false(Decoy.hasMutations(decoy.nested, 'twos'), 'decoy.nested has no mutations on "twos"');
+    t.deepEqual(subject, { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }, 'subject is { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }')
+    t.deepEqual(decoy, { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }, 'decoy is { ones: 1, twos: 222, nested: { ones: 1, twos: 222 } }')
 
     t.end();
 });
