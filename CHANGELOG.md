@@ -9,13 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Added
 ### Changed
+### Removed
+
+
+## [2.0.0] - 2023-04-02
+
+### Changed
 
 - *BREAKING* There's no more "default" export, all functions are exported individually, changing the way `import` and/or `require` work
 - `commit`, `rollback` and `hasMutations` now take optional keys to narrow down the effect of the function to only those keys
 - Ported the library to TypeScript
 - updated dependencies
-
-### Removed
 
 
 ## [1.4.7] - 2020-09-06
@@ -124,18 +128,19 @@ Initial release.
 
 
 [Unreleased]: https://github.com/konfirm/node-decoy/compare/v2.0.0...HEAD
-[1.4.7]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.7
-[1.4.6]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.6
-[1.4.5]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.5
-[1.4.4]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.4
-[1.4.3]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.3
-[1.4.2]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.2
-[1.4.1]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.1
-[1.4.0]: https://github.com/konfirm/node-decoy/compare/prev...v1.4.0
-[1.3.2]: https://github.com/konfirm/node-decoy/compare/prev...v1.3.2
-[1.3.1]: https://github.com/konfirm/node-decoy/compare/prev...v1.3.1
-[1.3.0]: https://github.com/konfirm/node-decoy/compare/prev...v1.3.0
-[1.2.0]: https://github.com/konfirm/node-decoy/compare/prev...v1.2.0
-[1.1.1]: https://github.com/konfirm/node-decoy/compare/prev...v1.1.1
-[1.1.0]: https://github.com/konfirm/node-decoy/compare/prev...v1.1.0
+[2.0.0]: https://github.com/konfirm/node-decoy/compare/v1.4.7...v2.0.0
+[1.4.7]: https://github.com/konfirm/node-decoy/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/konfirm/node-decoy/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/konfirm/node-decoy/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/konfirm/node-decoy/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/konfirm/node-decoy/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/konfirm/node-decoy/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/konfirm/node-decoy/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/konfirm/node-decoy/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/konfirm/node-decoy/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/konfirm/node-decoy/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/konfirm/node-decoy/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/konfirm/node-decoy/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/konfirm/node-decoy/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/konfirm/node-decoy/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/konfirm/node-decoy/releases/tag/v1.0.0
