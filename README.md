@@ -1,12 +1,12 @@
 # Decoy
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/817a1fe0a0ee4b6aa7308a9de3d2c953)](https://www.codacy.com/app/konfirm/node-decoy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=konfirm/node-decoy&amp;utm_campaign=Badge_Grade)
-[![Build Status](https://travis-ci.org/konfirm/node-decoy.svg?branch=master)](https://travis-ci.org/konfirm/node-decoy)
+[![Release](https://github.com/konfirm/node-decoy/actions/workflows/release.yml/badge.svg)](https://github.com/konfirm/node-decoy/actions/workflows/release.yml)
+[![Tests](https://github.com/konfirm/node-decoy/actions/workflows/tests.yml/badge.svg)](https://github.com/konfirm/node-decoy/actions/workflows/tests.yml)
 
 Create Proxy objects and keep track of mutations, reflecting them on access and providing the ability to either commit them or roll them back.
 
 ## A word of caution
-Decoy can only keep track of direct property changes, this means that any decoy which work solely though getters/setters will directly influence the underlying target. A good example is the built-in `Date` object, which is modified using its setter methods (e.g. `setFullYear(2018)`).
+Decoy can only keep track of direct property changes, this means that any decoy target that works solely through getters/setters will directly influence the underlying target. A good example is the built-in `Date` object, which is modified using its setter methods (e.g. `setFullYear(2018)`).
 
 ## Installation
 Decoy is a scoped package, which means both the installation and `require` (or `import`) need the scope along with the package name:
@@ -42,15 +42,15 @@ Decoy.commit(dummy)
 ```
 
 ## API
-Decoy is a collection of individuel functions which work with any object which allows to be [proxied](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+Decoy is a collection of individual functions that work with any object that can to be [proxied](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 All direct property changes are recorded to be truly applied (`commit`) or reverted (`rollback`) at a later stage. The created proxy decoys will reflect the changes made.
 
 ### exports
 
 | name         | syntax                                                           | description                                                                                         |
 | ------------ | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Decoy        | `Decoy<object>`                                                  | _TypeScript_ Type descibing a Decoy (which is just an alias for the object provided)                |
-| create       | `create<T>(target:T, boolean: onlyLastKeyMutations): Decoy<T>`   | create a new decoy for target                                                                       |
+| Decoy        | `Decoy<object>`                                                  | _TypeScript_ Type describing a Decoy (which is just an alias for the object provided)                |
+| create       | `create<T>(target:T, boolean: onlyLastKeyMutations): Decoy<T>`   | create a new decoy for the target                                                                       |
 | checksum     | `checksum(decoy: Decoy<T>):string`                               | calculate the checksum of the decoy                                                                 |
 | isDecoy      | `isDecoy<T>(target: Decoy<T>):boolean`                           | is the target a known Decoy                                                                         |
 | purge        | `purge<T = object>(decoy: Decoy<T>): T                           | clean the Decoy (including its nested ones)                                                         |
@@ -128,7 +128,7 @@ console.log(Decoy.isDecoy(original));  //  false;
 ```
 
 ### hasMutations
-Determine whether or not the provided proxy decoy has any (nested) mutations pending. If the provided value is not a know proxy `(boolean) false` is returned.
+Determine whether the provided Decoy has any (nested) mutations pending. If the provided value is not a known Decoy `(boolean) false` is returned.
 
 Syntax: `<Promise> Decoy.hasMutations(<proxy decoy> [, <keyof proxy 1>, <keyof proxy N>, ...])`
 
@@ -153,7 +153,7 @@ Decoy.rollback(dummy)
 _NOTE_: If the decoy was created with the flag to track only the last change, `hasMutations` will return false if the last change brought the previously changed value(s) back to their original values.
 
 #### Check for specific key mutations (new in v2.0.0)
-In order to determine whether one or more specific keys have been changed, the `hasMutations` function allows for one or more property keys to be provided, the result will then be `true` if any of those keys was changed _on the decoy provided_.
+In order to determine whether one or more specific keys have been changed, the `hasMutations` function allows for one or more property keys to be provided, the result will then be `true` if any of those keys were changed _on the decoy provided_.
 
 ```ts
 import { create, hasMutations } from '@konfirm/decoy';
@@ -201,7 +201,7 @@ Decoy.commit(original)
 ```
 
 #### commit specific key mutations (new in v2.0.0)
-In order to commit one or more specific changes, it is possible to specify the keys which should be commited.
+In order to commit one or more specific changes, it is possible to specify the keys which should be committed.
 
 ```ts
 import { create, commit } from '@konfirm/decoy';
@@ -223,7 +223,7 @@ commit(dummy, 'nested')
 ```
 
 ### rollback
-Roll back all recorded changes to the proxy decoy, dropping all recorded changes. This truncates all recorded changes and the recording as if nothing has changed.
+Roll back all recorded changes to the proxy decoy, dropping all recorded changes. This truncates all recorded changes.
 The return value is a Promise, which rejects if the given value is not a (known) proxy decoy.
 
 Syntax: `<Promise> Decoy.rollback(<proxy decoy>)`
@@ -250,7 +250,7 @@ Decoy.rollback(original)
 ```
 
 #### rollback specific key mutations (new in v2.0.0)
-In order to roll back one or more specific changes, it is possible to specify the keys which should be rolled back.
+In order to roll back one or more specific changes, it is possible to specify the keys that should be rolled back.
 
 ```ts
 import { create, rollback } from '@konfirm/decoy';
@@ -273,7 +273,7 @@ rollback(dummy, 'nested')
 
 
 ### purge
-Removes a proxy decoy from the internal list of created decoys. Cleaning up all of the record changes.
+Removes a proxy decoy from the internal list of created decoys. Cleaning up all the record changes.
 The return value is a Promise, which rejects if the given value is not a (known) proxy decoy.
 
 Syntax: `<Promise> Decoy.purge(<proxy decoy>)`
