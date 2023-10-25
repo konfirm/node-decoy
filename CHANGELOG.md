@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Added
 ### Changed
-- updated dependencies
-
 ### Removed
+
+
+## [2.0.1] - 2023-10-25
+
+### Changed
+- updated dependencies
 
 
 ## [2.0.0] - 2023-04-02
@@ -129,7 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
-[Unreleased]: https://github.com/konfirm/node-decoy/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/konfirm/node-decoy/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/konfirm/node-decoy/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/konfirm/node-decoy/compare/v1.4.7...v2.0.0
 [1.4.7]: https://github.com/konfirm/node-decoy/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/konfirm/node-decoy/compare/v1.4.5...v1.4.6
